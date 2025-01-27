@@ -16,7 +16,7 @@
 
 1. 克隆项目
 ```bash
-git clone https://github.com/your-username/xhs-monitor.git
+git clone https://github.com/0xtaosu/xhs-monitor.git
 cd xhs-monitor
 ```
 
