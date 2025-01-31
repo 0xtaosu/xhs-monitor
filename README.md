@@ -1,6 +1,6 @@
 # 小红书用户动态监控
 
-一个基于 Python 的小红书用户动态监控工具，支持实时监控指定用户的笔记更新，并通过企业微信应用消息推送通知。
+一个基于 Python 的小红书用户动态监控工具，支持实时监控指定用户的笔记更新。
 
 ## 功能特点
 
@@ -34,7 +34,6 @@ cp config.example.py config.py
 4. 修改配置文件
 打开 `config.py` 并设置以下必要配置：
 - `XHS_CONFIG`: 设置小红书 Cookie（必须包含 a1、web_session 和 webId 字段）
-- `WECOM_CONFIG`: 设置企业微信应用配置（企业ID、应用ID、Secret）
 - `MONITOR_CONFIG`: 设置监控配置
   - `USER_ID`: 要监控的用户ID
   - `CHECK_INTERVAL`: 检查间隔（建议至少5秒）
@@ -67,12 +66,6 @@ MONITOR_CONFIG = {
 }
 ```
 
-## 教程
-
-[追女神必备！使用 Python 构建小红书用户动态监控系统](https://mp.weixin.qq.com/s/2Y2mIPuofTUAdkOsdGmTGA)  
-
-[追女神必备！使用 Python 构建小红书用户动态监控系统（二）- 实现自动点赞和评论功能](https://mp.weixin.qq.com/s/cwIXvP6Fx2gv7l0L2GDs1A)
-
 ## 常见问题
 
 1. 签名获取失败
@@ -91,14 +84,3 @@ MONITOR_CONFIG = {
 
 ## License
 MIT License
-
-## 支持
-
-如果你喜欢这个项目，欢迎给它一个 Star ⭐️
-或者进行赞助
-<br />
-<br />
-<img src="https://pic.otaku.ren/20240212/AQADPrgxGwoIWFZ-.jpg" style="width: 400px;"/>
-<br />
-<br />
-<a href="https://www.buymeacoffee.com/beilunyang" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-blue.png" alt="Buy Me A Coffee" style="width: 400px;" ></a>

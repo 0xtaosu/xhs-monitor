@@ -1,23 +1,18 @@
 from xhs import XhsClient
 import time
 from typing import List
-from config import XHS_CONFIG, WECOM_CONFIG, MONITOR_CONFIG
+from config import XHS_CONFIG, MONITOR_CONFIG
 from utils import xhs_sign
 from db import Database
-from wecom import WecomMessage
 from comment_generator import CommentGenerator
 
 class XHSMonitor:
-    def __init__(self, cookie: str, corpid: str, agentid: int, secret: str):
+    def __init__(self, cookie: str):
         """
         初始化监控类
         :param cookie: 小红书cookie
-        :param corpid: 企业ID
-        :param agentid: 应用ID
-        :param secret: 应用的Secret
         """
         self.client = XhsClient(cookie=cookie, sign=xhs_sign)
-        self.wecom = WecomMessage(corpid, agentid, secret)
         self.db = Database()
         self.error_count = 0
         self.comment_generator = CommentGenerator()
@@ -27,13 +22,7 @@ class XHSMonitor:
         发送错误通知
         :param error_msg: 错误信息
         """
-        time_str = time.strftime('%Y-%m-%d %H:%M:%S')
-        content = (
-            "小红书监控异常告警\n"
-            f"错误信息：{error_msg}\n"
-            f"告警时间：{time_str}"
-        )
-        self.wecom.send_text(content)
+        print(f"Error: {error_msg}")
     
     def get_latest_notes(self, user_id: str) -> List[dict]:
         """
@@ -100,9 +89,12 @@ class XHSMonitor:
         :return: 评论结果
         """
         try:
+            print(f"开始处理评论 - note_id: {note_id}")
             time.sleep(MONITOR_CONFIG["COMMENT_DELAY"])
             
+            print(f"获取笔记详情 - xsec_token: {note_data.get('xsec_token', '')}")
             note_detail = self.get_note_detail(note_id, note_data.get('xsec_token', ''))
+            print(f"笔记详情: {note_detail}")
             
             title = note_detail.get('title', '')
             content = note_detail.get('desc', '')
@@ -110,14 +102,16 @@ class XHSMonitor:
             note_type = '视频' if note_detail.get('type') == 'video' else '图文'
             content = f"这是一个{note_type}笔记。{content}"
             
+            print(f"生成评论 - 标题: {title}, 内容: {content}")
             comment = self.comment_generator.generate_comment(title, content)
+            print(f"生成的评论内容: {comment}")
             
             self.client.comment_note(note_id, comment)
             
             print(f"评论成功: {note_id} - {comment}")
             return { "comment_status": True, "comment_content": comment }
         except Exception as e:
-            print(f"评论失败: {e}")
+            print(f"评论失败，详细错误: {str(e)}")
             return { "comment_status": False, "comment_content": "" }
 
     def interact_with_note(self, note_data: dict) -> dict:
@@ -181,7 +175,7 @@ class XHSMonitor:
         
         content.append(f"监控时间：{time_str}")
         
-        self.wecom.send_text("\n".join(content))
+        print("\n".join(content))
 
     def monitor_user(self, user_id: str, interval: int):
         """
@@ -205,7 +199,7 @@ class XHSMonitor:
                         f"首次监控某用户时，不会对历史笔记进行自动点赞和评论，仅保存笔记记录\n"
                         f"以防止被系统以及用户发现"
                     )
-                    self.wecom.send_text(welcome_msg)
+                    print(welcome_msg)
                     
                     for note in latest_notes:
                         self.db.add_note_if_not_exists(note)
@@ -224,9 +218,6 @@ class XHSMonitor:
 def main():
     monitor = XHSMonitor(
         cookie=XHS_CONFIG["COOKIE"],
-        corpid=WECOM_CONFIG["CORPID"],
-        agentid=WECOM_CONFIG["AGENTID"],
-        secret=WECOM_CONFIG["SECRET"]
     )
 
     monitor.monitor_user(
